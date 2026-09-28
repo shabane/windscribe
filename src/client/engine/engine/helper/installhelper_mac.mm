@@ -78,6 +78,12 @@ bool InstallHelper_mac::installHelper(bool bForceDeleteOld, bool &isUserCanceled
         //
         CFErrorRef outError = NULL;
         result = SMJobBless(kSMDomainSystemLaunchd, (__bridge CFStringRef)helperLabel, authRef, &outError);
+#ifndef USE_SIGNATURE_CHECK
+        if (!result && installedHelperJobData) {
+            logger->warn("InstallHelper - SMJobBless failed in dev mode, but existing helper job is registered. Proceeding anyway.");
+            result = YES;
+        }
+#endif
         if (!result) {
             if (outError) {
                 logger->error("InstallHelper - SMJobBless failed. Error code: {}", CFErrorGetCode(outError));
@@ -114,6 +120,14 @@ bool InstallHelper_mac::uninstallHelper(spdlog::logger *logger)
 
 bool InstallHelper_mac::isAppMajorMinorVersionSame()
 {
+    CFBundleRef mainBundle = CFBundleGetMainBundle();
+    if (mainBundle) {
+        CFStringRef mainVersion = (CFStringRef)CFBundleGetValueForInfoDictionaryKey(mainBundle, kCFBundleVersionKey);
+        if (mainVersion && CFStringHasPrefix(mainVersion, CFSTR(WS_VERSION_MAJOR_MINOR))) {
+            return true;
+        }
+    }
+
     CFURLRef url = CFURLCreateWithString(NULL, CFSTR(WS_MAC_APP_DIR), NULL);
     if (url == NULL) {
         return false;
