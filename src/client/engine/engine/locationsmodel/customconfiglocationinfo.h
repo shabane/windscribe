@@ -69,6 +69,7 @@ private:
 
     void resolveHostnamesForWireGuardConfig();
     void resolveHostnamesForOVPNConfig();
+    void resolveHostnamesForSingboxConfig();
     QString getSelectedRemoteCommand() const;
     QString getOvpnData() const;
 

@@ -41,7 +41,7 @@ void SingboxConnection::prepareImpl()
     if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text))
     {
         qCCritical(LOG_CONNECTION) << "SingboxConnection: cannot write to" << configFilePath_;
-        emit prepareFailed(ConnectError::kInternalClientError);
+        emit prepareFailed(ConnectError::kLocalConfigGenerationFailure);
         return;
     }
 
@@ -95,7 +95,7 @@ void SingboxConnection::run()
     AdapterGatewayInfo adapterInfo;
     adapterInfo.setAdapterName("ws-tun0");
     if (!effectiveIp_.isEmpty())
-        adapterInfo.setRemoteIp(types::IpAddress(effectiveIp_));
+        adapterInfo.setRemoteIp(types::IpAddress(effectiveIp_.toStdString()));
 
     qCInfo(LOG_CONNECTION) << "SingboxConnection: connected to" << effectiveIp_;
     emit connected(adapterInfo);

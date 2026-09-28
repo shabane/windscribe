@@ -301,10 +301,23 @@ void CustomConfigLocationInfo::resolveHostnamesForSingboxConfig()
     {
         RemoteDescr rd;
         rd.ipOrHostname_ = remote;
-        rd.isHostname = !NetworkingValidation::isIp(remote);
-        remotes_ << rd;
-        if (rd.isHostname)
+        rd.isHostname = false;
+        rd.port = globalPort_;
+        if (!NetworkingValidation::isIp(remote))
+        {
+            rd.isHostname = true;
+            rd.isResolved = false;
             isExistsHostnames = true;
+
+            auto callback = [this] (std::uint64_t requestId, const std::string &hostname, std::shared_ptr<WSNetDnsRequestResult> result)
+            {
+                QMetaObject::invokeMethod(this, [this, hostname, result] {
+                    onDnsRequestFinished(hostname, result);
+                });
+            };
+            WSNet::instance()->dnsResolver()->lookup(remote.toStdString(), 0, IpFamily::kBoth, callback);
+        }
+        remotes_ << rd;
     }
 
     if (!isExistsHostnames)
@@ -313,8 +326,6 @@ void CustomConfigLocationInfo::resolveHostnamesForSingboxConfig()
         emit hostnamesResolved();
         return;
     }
-
-    startResolveHostnames();
 }
 
 QString CustomConfigLocationInfo::getSingboxRuntimeConfig() const
