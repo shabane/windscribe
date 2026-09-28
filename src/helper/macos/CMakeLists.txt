@@ -100,16 +100,26 @@ target_link_libraries(${WS_MAC_HELPER_BUNDLE_ID}
 )
 
 # Sign helper immediately after building (required for SMJobBless)
-add_custom_command(TARGET ${WS_MAC_HELPER_BUNDLE_ID} POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E echo "Signing helper..."
-    COMMAND ${CODESIGN_EXECUTABLE}
-            --force
-            --options runtime
-            --timestamp
-            --sign "Developer ID Application"
-            $<TARGET_FILE:${WS_MAC_HELPER_BUNDLE_ID}>
-    COMMAND ${CODESIGN_EXECUTABLE} -v $<TARGET_FILE:${WS_MAC_HELPER_BUNDLE_ID}>
-)
+if(SIGN_APP)
+    add_custom_command(TARGET ${WS_MAC_HELPER_BUNDLE_ID} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E echo "Signing helper..."
+        COMMAND ${CODESIGN_EXECUTABLE}
+                --force
+                --options runtime
+                --timestamp
+                --sign "Developer ID Application"
+                $<TARGET_FILE:${WS_MAC_HELPER_BUNDLE_ID}>
+        COMMAND ${CODESIGN_EXECUTABLE} -v $<TARGET_FILE:${WS_MAC_HELPER_BUNDLE_ID}>
+    )
+elseif(DEV_MODE)
+    add_custom_command(TARGET ${WS_MAC_HELPER_BUNDLE_ID} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E echo "Ad-hoc signing helper for dev mode..."
+        COMMAND ${CODESIGN_EXECUTABLE}
+                --force
+                --sign -
+                $<TARGET_FILE:${WS_MAC_HELPER_BUNDLE_ID}>
+    )
+endif()
 
 target_include_directories(${WS_MAC_HELPER_BUNDLE_ID} PRIVATE
                            ../../client/client-common

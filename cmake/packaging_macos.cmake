@@ -10,7 +10,7 @@ add_custom_target(prep-installer-macos
 )
 
 # Run macdeployqt on main application bundle
-find_program(MACDEPLOYQT_EXECUTABLE macdeployqt HINTS "${Qt6_DIR}/../../../bin")
+find_program(MACDEPLOYQT_EXECUTABLE macdeployqt HINTS "${Qt6_DIR}/../../../bin" "${VCPKG_ROOT}/installed/arm64-osx/tools/Qt6/bin")
 if(MACDEPLOYQT_EXECUTABLE)
     add_custom_command(TARGET prep-installer-macos POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E echo "Running macdeployqt on ${WS_MAC_APP_BUNDLE_NAME}..."
@@ -29,28 +29,39 @@ foreach(_fw ${WS_MAC_UNUSED_FRAMEWORKS})
 endforeach()
 
 # Sign main application bundle
-# First sign with --deep to sign all nested components
-add_custom_command(TARGET prep-installer-macos POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E echo "Signing ${WS_MAC_APP_BUNDLE_NAME}..."
-    COMMAND ${CODESIGN_EXECUTABLE}
-            --deep
-            --force
-            --options runtime
-            --timestamp
-            --sign "Developer ID Application"
-            "$<TARGET_BUNDLE_DIR:${WS_APP_TARGET}>"
-)
-# Then sign the main executable with entitlements (only if provisioning profile exists)
-if(WS_MAC_ENTITLEMENTS AND EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/data/provisioning_profile/embedded.provisionprofile")
+if(SIGN_APP)
+    # First sign with --deep to sign all nested components
     add_custom_command(TARGET prep-installer-macos POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E echo "Signing main executable with entitlements..."
+        COMMAND ${CMAKE_COMMAND} -E echo "Signing ${WS_MAC_APP_BUNDLE_NAME}..."
         COMMAND ${CODESIGN_EXECUTABLE}
+                --deep
                 --force
                 --options runtime
                 --timestamp
-                --entitlements "${WS_MAC_ENTITLEMENTS}"
                 --sign "Developer ID Application"
-                "$<TARGET_BUNDLE_DIR:${WS_APP_TARGET}>/Contents/MacOS/${WS_APP_TARGET}"
+                "$<TARGET_BUNDLE_DIR:${WS_APP_TARGET}>"
+    )
+    # Then sign the main executable with entitlements (only if provisioning profile exists)
+    if(WS_MAC_ENTITLEMENTS AND EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/data/provisioning_profile/embedded.provisionprofile")
+        add_custom_command(TARGET prep-installer-macos POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E echo "Signing main executable with entitlements..."
+            COMMAND ${CODESIGN_EXECUTABLE}
+                    --force
+                    --options runtime
+                    --timestamp
+                    --entitlements "${WS_MAC_ENTITLEMENTS}"
+                    --sign "Developer ID Application"
+                    "$<TARGET_BUNDLE_DIR:${WS_APP_TARGET}>/Contents/MacOS/${WS_APP_TARGET}"
+        )
+    endif()
+elseif(DEV_MODE)
+    add_custom_command(TARGET prep-installer-macos POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E echo "Ad-hoc signing ${WS_MAC_APP_BUNDLE_NAME} for dev mode..."
+        COMMAND ${CODESIGN_EXECUTABLE}
+                --deep
+                --force
+                --sign -
+                "$<TARGET_BUNDLE_DIR:${WS_APP_TARGET}>"
     )
 endif()
 
@@ -66,16 +77,18 @@ if(ENABLE_NOTARIZE)
 endif()
 
 # Create compressed app archive in installer's Resources directory
-set(_INSTALLER_RESOURCES "$<TARGET_BUNDLE_DIR:${WS_MAC_INSTALLER_TARGET}>/Contents/Resources")
-add_custom_command(TARGET prep-installer-macos POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E echo "Creating ${WS_PRODUCT_NAME_LOWER}.tar.lzma..."
-    COMMAND ${CMAKE_COMMAND} -E make_directory "${_INSTALLER_RESOURCES}"
-    COMMAND ${CMAKE_COMMAND} -E remove -f "${_INSTALLER_RESOURCES}/${WS_PRODUCT_NAME_LOWER}.tar.lzma"
-    COMMAND tar --lzma -cf
-            "${_INSTALLER_RESOURCES}/${WS_PRODUCT_NAME_LOWER}.tar.lzma"
-            -C "$<TARGET_BUNDLE_DIR:${WS_APP_TARGET}>"
-            .
-)
+if(BUILD_INSTALLER)
+    set(_INSTALLER_RESOURCES "$<TARGET_BUNDLE_DIR:${WS_MAC_INSTALLER_TARGET}>/Contents/Resources")
+    add_custom_command(TARGET prep-installer-macos POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E echo "Creating ${WS_PRODUCT_NAME_LOWER}.tar.lzma..."
+        COMMAND ${CMAKE_COMMAND} -E make_directory "${_INSTALLER_RESOURCES}"
+        COMMAND ${CMAKE_COMMAND} -E remove -f "${_INSTALLER_RESOURCES}/${WS_PRODUCT_NAME_LOWER}.tar.lzma"
+        COMMAND tar --lzma -cf
+                "${_INSTALLER_RESOURCES}/${WS_PRODUCT_NAME_LOWER}.tar.lzma"
+                -C "$<TARGET_BUNDLE_DIR:${WS_APP_TARGET}>"
+                .
+    )
+endif()
 
 # Installer packaging - creates DMG
 if(BUILD_INSTALLER)

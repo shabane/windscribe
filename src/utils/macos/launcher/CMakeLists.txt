@@ -34,15 +34,25 @@ target_include_directories(${WS_MAC_LAUNCHER_TARGET} PRIVATE
 )
 
 # Sign launcher immediately after building
-add_custom_command(TARGET ${WS_MAC_LAUNCHER_TARGET} POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E echo "Signing ${WS_MAC_LAUNCHER_TARGET}..."
-    COMMAND ${CODESIGN_EXECUTABLE}
-            --force
-            --options runtime
-            --timestamp
-            --entitlements "${CMAKE_CURRENT_SOURCE_DIR}/launcher.entitlements"
-            --sign "Developer ID Application"
-            $<TARGET_BUNDLE_DIR:${WS_MAC_LAUNCHER_TARGET}>
-    COMMAND ${CODESIGN_EXECUTABLE} -v $<TARGET_BUNDLE_DIR:${WS_MAC_LAUNCHER_TARGET}>
-)
+if(SIGN_APP)
+    add_custom_command(TARGET ${WS_MAC_LAUNCHER_TARGET} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E echo "Signing ${WS_MAC_LAUNCHER_TARGET}..."
+        COMMAND ${CODESIGN_EXECUTABLE}
+                --force
+                --options runtime
+                --timestamp
+                --entitlements "${CMAKE_CURRENT_SOURCE_DIR}/launcher.entitlements"
+                --sign "Developer ID Application"
+                $<TARGET_BUNDLE_DIR:${WS_MAC_LAUNCHER_TARGET}>
+        COMMAND ${CODESIGN_EXECUTABLE} -v $<TARGET_BUNDLE_DIR:${WS_MAC_LAUNCHER_TARGET}>
+    )
+elseif(DEV_MODE)
+    add_custom_command(TARGET ${WS_MAC_LAUNCHER_TARGET} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E echo "Ad-hoc signing ${WS_MAC_LAUNCHER_TARGET} for dev mode..."
+        COMMAND ${CODESIGN_EXECUTABLE}
+                --force
+                --sign -
+                $<TARGET_BUNDLE_DIR:${WS_MAC_LAUNCHER_TARGET}>
+    )
+endif()
 

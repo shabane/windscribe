@@ -59,14 +59,24 @@ if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/../../../data/provisioning_profile/splitt
 endif()
 
 # Sign split tunnel extension immediately after building
-add_custom_command(TARGET ${WS_MAC_SPLIT_TUNNEL_BUNDLE_ID} POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E echo "Signing split tunnel extension..."
-    COMMAND ${CODESIGN_EXECUTABLE}
-            --force
-            --options runtime
-            --timestamp
-            --entitlements "${CMAKE_CURRENT_BINARY_DIR}/splittunnelextension.entitlements.configured"
-            --sign "Developer ID Application"
-            $<TARGET_BUNDLE_DIR:${WS_MAC_SPLIT_TUNNEL_BUNDLE_ID}>
-    COMMAND ${CODESIGN_EXECUTABLE} -v $<TARGET_BUNDLE_DIR:${WS_MAC_SPLIT_TUNNEL_BUNDLE_ID}>
-)
+if(SIGN_APP)
+    add_custom_command(TARGET ${WS_MAC_SPLIT_TUNNEL_BUNDLE_ID} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E echo "Signing split tunnel extension..."
+        COMMAND ${CODESIGN_EXECUTABLE}
+                --force
+                --options runtime
+                --timestamp
+                --entitlements "${CMAKE_CURRENT_BINARY_DIR}/splittunnelextension.entitlements.configured"
+                --sign "Developer ID Application"
+                $<TARGET_BUNDLE_DIR:${WS_MAC_SPLIT_TUNNEL_BUNDLE_ID}>
+        COMMAND ${CODESIGN_EXECUTABLE} -v $<TARGET_BUNDLE_DIR:${WS_MAC_SPLIT_TUNNEL_BUNDLE_ID}>
+    )
+elseif(DEV_MODE)
+    add_custom_command(TARGET ${WS_MAC_SPLIT_TUNNEL_BUNDLE_ID} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E echo "Ad-hoc signing split tunnel extension for dev mode..."
+        COMMAND ${CODESIGN_EXECUTABLE}
+                --force
+                --sign -
+                $<TARGET_BUNDLE_DIR:${WS_MAC_SPLIT_TUNNEL_BUNDLE_ID}>
+    )
+endif()
