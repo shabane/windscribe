@@ -77,7 +77,7 @@ void ExternalConfigWindowItem::paint(QPainter *painter, const QStyleOptionGraphi
     painter->setOpacity(curTextOpacity_ * initialOpacity);
     painter->setFont(FontManager::instance().getFont(14, QFont::Normal, 100));
 
-    QString descriptionText = tr("Use the Windscribe app without an account to connect to any OpenVPN or WireGuard server.");
+    QString descriptionText = tr("Use the Windscribe app without an account to connect to any Sing-box, OpenVPN or WireGuard server.");
     QFontMetrics fm = painter->fontMetrics();
     int width = fm.horizontalAdvance(descriptionText)/3; // 3 lines
     if (width < DESCRIPTION_WIDTH_MIN*G_SCALE) width = DESCRIPTION_WIDTH_MIN*G_SCALE;
