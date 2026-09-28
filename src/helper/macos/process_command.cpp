@@ -230,6 +230,7 @@ std::string executeTaskKill(const std::string &pars)
         success = true;
     } else if (target == kTargetSingbox) {
         spdlog::info("Killing sing-box processes");
+        Utils::executeCommand("pkill", {"-f", "singbox"});
         Utils::executeCommand("pkill", {"-f", "sing-box"});
         success = true;
     } else {
@@ -514,11 +515,16 @@ std::string startSingbox(const std::string &pars)
 
     spdlog::info("Starting sing-box with config: {}", configPath);
 
-    std::string finalPath = Utils::getExePath() + "/" WS_PRODUCT_NAME_LOWER "sing-box";
-    if (!Utils::fileExists(finalPath)) {
-        if (Utils::fileExists("/opt/homebrew/bin/sing-box")) {
+    std::string finalPath = Utils::getExePath() + "/" WS_PRODUCT_NAME_LOWER "singbox";
+    if (!Utils::isFileExists(finalPath)) {
+        finalPath = Utils::getExePath() + "/" WS_PRODUCT_NAME_LOWER "sing-box";
+    }
+    if (!Utils::isFileExists(finalPath)) {
+        if (Utils::isFileExists("/Applications/Windscribe.app/Contents/Helpers/windscribesingbox")) {
+            finalPath = "/Applications/Windscribe.app/Contents/Helpers/windscribesingbox";
+        } else if (Utils::isFileExists("/opt/homebrew/bin/sing-box")) {
             finalPath = "/opt/homebrew/bin/sing-box";
-        } else if (Utils::fileExists("/usr/local/bin/sing-box")) {
+        } else if (Utils::isFileExists("/usr/local/bin/sing-box")) {
             finalPath = "/usr/local/bin/sing-box";
         }
     }
