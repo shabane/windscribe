@@ -2,6 +2,7 @@
 
 #include "engine/connectionmanager/connectrequest.h"
 #include "engine/connectionmanager/connectors/openvpn/openvpnconnection.h"
+#include "engine/connectionmanager/connectors/singbox/singboxconnection.h"
 #include "engine/wireguardconfig/getwireguardconfig.h"
 #include "utils/ws_assert.h"
 
@@ -31,6 +32,8 @@ IConnection *ConnectionFactory::createConnection(types::Protocol protocol, QObje
 #elif defined Q_OS_LINUX
         return new IKEv2Connection_linux(parent, helper_, protocol, request.ikev2);
 #endif
+    } else if (protocol.isSingboxProtocol()) {
+        return new SingboxConnection(parent, helper_, protocol);
     }
 
     WS_ASSERT(false);
@@ -77,6 +80,7 @@ void ConnectionFactory::finishActiveConnections(Helper *helper)
     helper->executeTaskKill(kTargetStunnel);
     helper->executeTaskKill(kTargetWStunnel);
     helper->stopWireGuard();
+    helper->stopSingbox();
 #ifdef Q_OS_MACOS
     IKEv2Connection_mac::closeAppActiveConnection();
 #endif

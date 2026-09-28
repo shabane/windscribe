@@ -28,6 +28,8 @@ target_sources(engine PRIVATE
     connectors/wireguard/wireguardconnectionbase.cpp
     connectors/wireguard/wireguardconnectionbase.h
     connectors/wireguard/wireguardsessionparams.h
+    connectors/singbox/singboxconnection.cpp
+    connectors/singbox/singboxconnection.h
     attemptstrategy/autoconnectionattemptstrategy.cpp
     attemptstrategy/autoconnectionattemptstrategy.h
     attemptstrategy/iconnectionattemptstrategy.cpp

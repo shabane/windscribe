@@ -6,6 +6,7 @@
 #include "customconfiglocationinfo.h"
 #include "engine/customconfigs/ovpncustomconfig.h"
 #include "engine/customconfigs/wireguardcustomconfig.h"
+#include "engine/customconfigs/singboxcustomconfig.h"
 #include "utils/log/categories.h"
 #include "utils/networkingvalidation.h"
 #include "utils/ws_assert.h"
@@ -254,6 +255,10 @@ void CustomConfigLocationsModel::generateLocationsUpdated()
                 if (city.customConfigPort == 0 && !ovpn->remotes().isEmpty()) {
                     city.customConfigPort = ovpn->remotes().first().port;
                 }
+            } else if (config.customConfig->type() == CUSTOM_CONFIG_SINGBOX) {
+                const auto *sb = static_cast<const customconfigs::SingboxCustomConfig *>(config.customConfig.get());
+                city.customConfigProtocol = types::Protocol::SINGBOX;
+                city.customConfigPort = sb->getEndpointPort();
             } else {
                 const auto *wg = static_cast<const customconfigs::WireguardCustomConfig *>(config.customConfig.get());
                 city.customConfigProtocol = types::Protocol::WIREGUARD;

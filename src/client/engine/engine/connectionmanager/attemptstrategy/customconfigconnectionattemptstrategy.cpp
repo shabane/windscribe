@@ -42,6 +42,9 @@ CurrentConnectionDescr CustomConfigConnectionAttemptStrategy::getCurrentConnecti
         ccd.protocol = types::Protocol::fromString(locationInfo_->getSelectedProtocol());
         if (ccd.protocol.isWireGuardProtocol()) {
             ccd.wireGuard.customConfig = locationInfo_->getWireguardCustomConfig(ccd.ip);
+        } else if (ccd.protocol.isSingboxProtocol()) {
+            ccd.singbox.runtimeConfigJson = locationInfo_->getSingboxRuntimeConfig();
+            ccd.singbox.tag = locationInfo_->getFilename();
         } else {
             ccd.openVpn.customConfig = locationInfo_->getOvpnConfigForSelectedEndpoint();
         }

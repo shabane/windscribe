@@ -37,6 +37,7 @@ public:
     QString getFilename() const;
     CUSTOM_CONFIG_TYPE configType() const { return config_->type(); }
     QSharedPointer<WireGuardConfig> getWireguardCustomConfig(const QString &endpointIp) const;
+    QString getSingboxRuntimeConfig() const;
     bool isAllowFirewallAfterConnection() const;
     void selectNextNode();
 

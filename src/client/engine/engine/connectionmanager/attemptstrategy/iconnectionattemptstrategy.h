@@ -49,6 +49,12 @@ struct CurrentConnectionDescr
         api_responses::ServerCredentials credentials;
         api_responses::StaticIpPortsVector ports;
     } staticIps;
+
+    // Sing-box payload: filled for custom-config sing-box attempts.
+    struct Singbox {
+        QString runtimeConfigJson;
+        QString tag;
+    } singbox;
 };
 Q_DECLARE_METATYPE(CurrentConnectionDescr)
 

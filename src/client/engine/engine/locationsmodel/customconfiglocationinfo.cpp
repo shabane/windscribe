@@ -1,6 +1,7 @@
 #include "customconfiglocationinfo.h"
 #include "engine/customconfigs/ovpncustomconfig.h"
 #include "engine/customconfigs/wireguardcustomconfig.h"
+#include "engine/customconfigs/singboxcustomconfig.h"
 #include "utils/log/categories.h"
 #include "utils/networkingvalidation.h"
 #include "utils/ws_assert.h"
@@ -69,6 +70,9 @@ void CustomConfigLocationInfo::resolveHostnames()
         break;
     case CUSTOM_CONFIG_WIREGUARD:
         resolveHostnamesForWireGuardConfig();
+        break;
+    case CUSTOM_CONFIG_SINGBOX:
+        resolveHostnamesForSingboxConfig();
         break;
     default:
         WS_ASSERT(false);
@@ -277,6 +281,51 @@ QSharedPointer<WireGuardConfig> CustomConfigLocationInfo::getWireguardCustomConf
         WS_ASSERT(false);
     }
     return nullptr;
+}
+
+void CustomConfigLocationInfo::resolveHostnamesForSingboxConfig()
+{
+    auto *config = dynamic_cast<customconfigs::SingboxCustomConfig const *>(config_.data());
+    if (!config)
+    {
+        WS_ASSERT(false);
+        return;
+    }
+
+    globalPort_ = config->getEndpointPort();
+    globalProtocol_ = "singbox";
+
+    bool isExistsHostnames = false;
+    const auto remotes = config->hostnames();
+    for (const auto &remote : remotes)
+    {
+        RemoteDescr rd;
+        rd.ipOrHostname_ = remote;
+        rd.isHostname = !NetworkingValidation::isIp(remote);
+        remotes_ << rd;
+        if (rd.isHostname)
+            isExistsHostnames = true;
+    }
+
+    if (!isExistsHostnames)
+    {
+        bAllResolved_ = true;
+        emit hostnamesResolved();
+        return;
+    }
+
+    startResolveHostnames();
+}
+
+QString CustomConfigLocationInfo::getSingboxRuntimeConfig() const
+{
+    if (config_->type() == CUSTOM_CONFIG_SINGBOX) {
+        auto *config = dynamic_cast<customconfigs::SingboxCustomConfig const *>(config_.data());
+        if (config)
+            return config->generateRuntimeJsonConfig("ws-tun0");
+        WS_ASSERT(false);
+    }
+    return QString();
 }
 
 bool CustomConfigLocationInfo::isAllowFirewallAfterConnection() const

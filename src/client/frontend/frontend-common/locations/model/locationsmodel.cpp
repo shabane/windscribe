@@ -732,6 +732,10 @@ QVariant LocationsModel::dataForCity(LocationItem *l, int row, int role) const
         {
             return "wg";
         }
+        else if (l->location().cities[row].customConfigType == CUSTOM_CONFIG_SINGBOX)
+        {
+            return "sing-box";
+        }
         else
         {
             WS_ASSERT(false);
