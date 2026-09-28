@@ -3,20 +3,37 @@
 
 namespace gui_locations {
 
+static QString sanitizeForTextPixmap(const QString &text)
+{
+    QString res;
+    auto u32Str = text.toUcs4();
+    for (char32_t code : u32Str)
+    {
+        // Skip emojis, regional indicators, or variation selectors that trigger macOS CopyEmojiImage
+        if (code >= 0x1F000 || (code >= 0x2600 && code <= 0x27BF) || (code >= 0xFE00 && code <= 0xFE0F))
+        {
+            continue;
+        }
+        res += QString::fromUcs4(&code, 1);
+    }
+    return res;
+}
+
 TextPixmap::TextPixmap(const QString &text, const QFont &font, qreal devicePixelRatio) : text_(text)
 {
-    if (!text.isEmpty())
+    QString safeText = sanitizeForTextPixmap(text);
+    if (!safeText.isEmpty())
     {
         QFontMetrics fm(font);
-        QRect rcText = fm.boundingRect(text);
-        QPixmap pixmap(fm.horizontalAdvance(text)*devicePixelRatio, rcText.height()*devicePixelRatio);
+        QRect rcText = fm.boundingRect(safeText);
+        QPixmap pixmap(fm.horizontalAdvance(safeText)*devicePixelRatio, rcText.height()*devicePixelRatio);
         pixmap.setDevicePixelRatio(devicePixelRatio);
         pixmap.fill(Qt::transparent);
         {
             QPainter painter(&pixmap);
             painter.setPen(Qt::white);      // for current needs, we use only white color
             painter.setFont(font);
-            painter.drawText(QRect(0, 0, fm.horizontalAdvance(text), rcText.height()), Qt::AlignLeft, text);
+            painter.drawText(QRect(0, 0, fm.horizontalAdvance(safeText), rcText.height()), Qt::AlignLeft, safeText);
         }
         pixmap_ = IndependentPixmap(pixmap);
     }

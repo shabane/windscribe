@@ -26,6 +26,41 @@ bool SingboxUrlParser::parseUrl(const QString &rawUrl, SingboxParsedNode &node)
     return false;
 }
 
+QString SingboxUrlParser::sanitizeTag(const QString &tag)
+{
+    QString res;
+    auto u32Str = tag.toUcs4();
+    for (int i = 0; i < u32Str.size(); ++i)
+    {
+        char32_t code = u32Str[i];
+
+        // Flag emojis: Regional indicator symbol pairs (0x1F1E6 to 0x1F1FF)
+        if (code >= 0x1F1E6 && code <= 0x1F1FF && (i + 1) < u32Str.size() &&
+            u32Str[i+1] >= 0x1F1E6 && u32Str[i+1] <= 0x1F1FF)
+        {
+            char c1 = static_cast<char>('A' + (code - 0x1F1E6));
+            char c2 = static_cast<char>('A' + (u32Str[i+1] - 0x1F1E6));
+            res += QString("[%1%2]").arg(c1).arg(c2);
+            i++;
+            continue;
+        }
+
+        // Filter out decorative emojis & variation selectors that crash macOS ImageIO / CoreText
+        if ((code >= 0x1F300 && code <= 0x1FAFF) ||
+            (code >= 0x2600 && code <= 0x27BF) ||
+            (code >= 0x1F600 && code <= 0x1F64F) ||
+            (code >= 0x1F680 && code <= 0x1F6FF) ||
+            (code >= 0x2B50 && code <= 0x2B55) ||
+            (code >= 0xFE00 && code <= 0xFE0F))
+        {
+            continue;
+        }
+
+        res += QString::fromUcs4(&code, 1);
+    }
+    return res.simplified();
+}
+
 bool SingboxUrlParser::parseVless(const QString &urlStr, SingboxParsedNode &node)
 {
     QUrl url(urlStr);
@@ -37,7 +72,7 @@ bool SingboxUrlParser::parseVless(const QString &urlStr, SingboxParsedNode &node
     node.uuidOrPassword = url.userName();
     node.server = url.host();
     node.port = url.port(443);
-    node.tag = QUrl::fromPercentEncoding(url.fragment().toUtf8());
+    node.tag = sanitizeTag(QUrl::fromPercentEncoding(url.fragment().toUtf8()));
     if (node.tag.isEmpty())
         node.tag = QString("%1:%2").arg(node.server).arg(node.port);
 
@@ -75,7 +110,7 @@ bool SingboxUrlParser::parseTrojan(const QString &urlStr, SingboxParsedNode &nod
     node.uuidOrPassword = url.userName();
     node.server = url.host();
     node.port = url.port(443);
-    node.tag = QUrl::fromPercentEncoding(url.fragment().toUtf8());
+    node.tag = sanitizeTag(QUrl::fromPercentEncoding(url.fragment().toUtf8()));
     if (node.tag.isEmpty())
         node.tag = QString("%1:%2").arg(node.server).arg(node.port);
 
@@ -157,7 +192,8 @@ bool SingboxUrlParser::parseShadowsocks(const QString &urlStr, SingboxParsedNode
 
     node.rawUrl = urlStr;
     node.protocol = "shadowsocks";
-    node.tag = fragment.isEmpty() ? QString("%1:%2").arg(node.server).arg(node.port) : fragment;
+    QString cleanFrag = sanitizeTag(fragment);
+    node.tag = cleanFrag.isEmpty() ? QString("%1:%2").arg(node.server).arg(node.port) : cleanFrag;
 
     return node.isValid();
 }

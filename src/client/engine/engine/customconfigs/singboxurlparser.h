@@ -43,6 +43,8 @@ public:
     static QJsonObject generateConfigJson(const SingboxParsedNode &node, const QString &tunInterface = "ws-tun0");
     static QString generateConfigString(const SingboxParsedNode &node, const QString &tunInterface = "ws-tun0");
 
+    static QString sanitizeTag(const QString &tag);
+
 private:
     static bool parseVless(const QString &url, SingboxParsedNode &node);
     static bool parseTrojan(const QString &url, SingboxParsedNode &node);
