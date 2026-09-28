@@ -60,7 +60,7 @@ set(WS_SUPPORT_EMAIL "hello@windscribe.com")
 set(WS_COPYRIGHT "Copyright (C) 2026 Windscribe Limited")
 
 # Which helper binaries to bundle.
-set(WS_BUNDLED_HELPER_NAMES openvpn ctrld wstunnel amneziawg)
+set(WS_BUNDLED_HELPER_NAMES openvpn ctrld wstunnel amneziawg singbox)
 
 # Shared libraries to bundle.
 set(WS_SHARED_LIB_NAMES wsnet openssl)

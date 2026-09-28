@@ -81,6 +81,8 @@ function(ws_resolve_bundled_helpers)
     set(_SRC_wstunnel_WIN     "${_build_libs}/wstunnel/${_p}wstunnel.exe")
     set(_SRC_wstunnel_POSIX    "${_build_libs}/wstunnel/${_p}wstunnel")
     set(_SRC_amneziawg_POSIX   "${_build_libs}/wireguard/${_p}amneziawg")
+    set(_SRC_singbox_WIN       "${_build_libs}/singbox/sing-box.exe")
+    set(_SRC_singbox_POSIX      "${_build_libs}/singbox/sing-box")
 
     # amneziawg on Windows bundles raw DLLs instead of a single prefixed binary.
     set(_SRC_amneziawg_WIN_DLLS

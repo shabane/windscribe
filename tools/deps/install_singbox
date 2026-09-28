@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+#-------------------------------------------------------------------------------
+# Windscribe Build System - sing-box wrapper
+#-------------------------------------------------------------------------------
+tools_dir=$(dirname "$0")
+
+PYTHONDONTWRITEBYTECODE=1 exec python3 "$tools_dir/install_singbox.py" "$@"
