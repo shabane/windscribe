@@ -1685,11 +1685,11 @@ void MainWindow::onLocationsAddCustomConfigClicked()
         ACT_REPING_CONFIGS
     };
 
-    menu.addItem(tr("📋 Paste from Clipboard"), ACT_PASTE_CLIPBOARD);
-    menu.addItem(tr("📝 Paste into Text Box..."), ACT_PASTE_TEXTBOX);
-    menu.addItem(tr("📄 Select Config File (.txt, .json, .ovpn, .conf)..."), ACT_SELECT_FILE);
-    menu.addItem(tr("📁 Select Config Folder..."), ACT_SELECT_FOLDER);
-    menu.addItem(tr("⚡ Test / Refresh Pings"), ACT_REPING_CONFIGS);
+    menu.addItem(tr("Paste from Clipboard"), ACT_PASTE_CLIPBOARD);
+    menu.addItem(tr("Paste into Text Box..."), ACT_PASTE_TEXTBOX);
+    menu.addItem(tr("Select Config File (.txt, .json, .ovpn, .conf)..."), ACT_SELECT_FILE);
+    menu.addItem(tr("Select Config Folder..."), ACT_SELECT_FOLDER);
+    menu.addItem(tr("Test / Refresh Pings"), ACT_REPING_CONFIGS);
 
     ShowingDialogState::instance().setCurrentlyShowingExternalDialog(true);
     QAction *selectedAction = menu.exec(QCursor::pos());
@@ -2025,6 +2025,16 @@ void MainWindow::onBackendTryingBackupEndpoint()
 
 void MainWindow::onBackendLoginError(wsnet::LoginResult loginError, const QString &errorMessage)
 {
+    if (isLoginOkAndConnectWindowVisible_) {
+        // If we have already activated at some point or on main window, we never show login popups
+        if (loginError == wsnet::LoginResult::kSessionInvalid) {
+            onBackendSessionDeleted();
+        } else {
+            qCWarning(LOG_BASIC) << "Session error while on main window: " << (int)loginError;
+        }
+        return;
+    }
+
     // This error is special in that we can show the prompt any time
     if (loginError == wsnet::LoginResult::kSslError) {
         GeneralMessageController::instance().showMessageWithRedAccept(
@@ -2060,17 +2070,6 @@ void MainWindow::onBackendLoginError(wsnet::LoginResult loginError, const QStrin
                     mainWindowController_->changeWindow(MainWindowController::WINDOW_ID_SIGNUP);
                 }
             });
-        return;
-    }
-
-    if (isLoginOkAndConnectWindowVisible_) {
-        // If we have already activated at some point, we never log out regardless of API errors,
-        // except for messages indicating the session is no longer valid
-        if (loginError == wsnet::LoginResult::kSessionInvalid) {
-            onBackendSessionDeleted();
-        } else {
-            qCWarning(LOG_BASIC) << "Session error while logged in: " << (int)loginError;
-        }
         return;
     }
 

@@ -360,7 +360,7 @@ private:
     types::EngineSettings engineSettings_;
     // Session-only "ignore SSL errors" state (never persisted). Mirrors what we last pushed to wsnet so the
     // login-failure path can tell a genuine no-connectivity failure from one worth re-prompting about.
-    bool ignoreSslErrors_ = false;
+    bool ignoreSslErrors_ = true;
     Helper *helper_;
     FirewallController *firewallController_;
     IDnsConfigurator *dnsConfigurator_;
