@@ -99,7 +99,13 @@ Location Location::locationFromJsonObject(const QJsonObject &obj)
         city.staticIpShortName = objCity["static_ip_short_name"].toString();
         city.staticIpType = objCity["static_ip_type"].toString();
         city.staticIp = objCity["static_ip"].toString();
-        city.customConfigType = (objCity["custom_config_type"].toString() == "CUSTOM_CONFIG_OPENVPN" ? CUSTOM_CONFIG_OPENVPN : CUSTOM_CONFIG_WIREGUARD);
+        QString cfgTypeStr = objCity["custom_config_type"].toString();
+        if (cfgTypeStr == "CUSTOM_CONFIG_OPENVPN")
+            city.customConfigType = CUSTOM_CONFIG_OPENVPN;
+        else if (cfgTypeStr == "CUSTOM_CONFIG_SINGBOX")
+            city.customConfigType = CUSTOM_CONFIG_SINGBOX;
+        else
+            city.customConfigType = CUSTOM_CONFIG_WIREGUARD;
         city.customConfigIsCorrect = objCity["custom_config_is_correct"].toBool();
         city.customConfigErrorMessage = objCity["custom_config_error_message"].toString();
         city.is10Gbps = (objCity["link_speed"].toInt() == 10000);

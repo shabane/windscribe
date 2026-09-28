@@ -20,6 +20,9 @@ QString Protocol::toShortString() const
     else if (value_ == WIREGUARD) {
         return "wireguard";
     }
+    else if (value_ == SINGBOX) {
+        return "singbox";
+    }
     else {
         WS_ASSERT(false);
         return "unknown";
@@ -45,6 +48,9 @@ QString Protocol::toLongString() const
     }
     else if (value_ == WIREGUARD)  {
         return "WireGuard";
+    }
+    else if (value_ == SINGBOX) {
+        return "sing-box";
     }
     else
     {
@@ -74,6 +80,11 @@ bool Protocol::isWireGuardProtocol() const
     return value_ == WIREGUARD;
 }
 
+bool Protocol::isSingboxProtocol() const
+{
+    return value_ == SINGBOX;
+}
+
 bool Protocol::isValid() const
 {
     return value_ != UNINITIALIZED;
@@ -95,6 +106,10 @@ Protocol Protocol::fromString(const QString &strProtocol)
     }
     else if (strProtocol.compare("WireGuard", Qt::CaseInsensitive) == 0) {
         return WIREGUARD;
+    }
+    else if (strProtocol.compare("singbox", Qt::CaseInsensitive) == 0 ||
+             strProtocol.compare("sing-box", Qt::CaseInsensitive) == 0) {
+        return SINGBOX;
     }
     else if (strProtocol.compare("IKEv2", Qt::CaseInsensitive) == 0) {
         return IKEV2;

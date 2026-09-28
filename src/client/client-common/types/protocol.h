@@ -13,13 +13,14 @@ public:
         STUNNEL = 3,
         WSTUNNEL = 4,
         WIREGUARD = 5,
+        SINGBOX = 6,
         UNINITIALIZED = 100000
     };
 
     Protocol() : value_(UNINITIALIZED) {}
     Protocol(TYPE a) : value_(a) {}
     Protocol(int a) {
-        if (a >= 0 && a <= 5) {
+        if (a >= 0 && a <= 6) {
             value_ = static_cast<TYPE>(a);
         } else {
             value_ = UNINITIALIZED;
@@ -40,6 +41,7 @@ public:
     bool isStunnelOrWStunnelProtocol() const;
     bool isIkev2Protocol() const;
     bool isWireGuardProtocol() const;
+    bool isSingboxProtocol() const;
     bool isValid() const;
 
     static Protocol fromString(const QString &strProtocol);
