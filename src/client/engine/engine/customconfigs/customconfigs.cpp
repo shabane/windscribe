@@ -4,6 +4,7 @@
 #include "parseovpnconfigline.h"
 #include "ovpncustomconfig.h"
 #include "wireguardcustomconfig.h"
+#include "singboxcustomconfig.h"
 
 namespace customconfigs {
 
@@ -59,10 +60,24 @@ void CustomConfigs::parseDir()
     for (const QString &filename : fileList)
     {
         QString filepath = dirWatcher_->curDir() + "/" + filename;
-        QSharedPointer<const ICustomConfig> config = makeCustomConfigFromFile(filepath);
-        if (!config.isNull())
+        QFileInfo fi(filepath);
+        QString fileSuffix = fi.suffix().toLower();
+        if (fileSuffix == "txt")
         {
-            configs_ << config;
+            auto singboxConfigs = SingboxCustomConfig::makeFromUrlFile(filepath);
+            for (const auto &cfg : singboxConfigs)
+            {
+                if (!cfg.isNull())
+                    configs_ << cfg;
+            }
+        }
+        else
+        {
+            QSharedPointer<const ICustomConfig> config = makeCustomConfigFromFile(filepath);
+            if (!config.isNull())
+            {
+                configs_ << config;
+            }
         }
     }
 }
@@ -78,6 +93,10 @@ QSharedPointer<const ICustomConfig> CustomConfigs::makeCustomConfigFromFile(cons
     else if (fileSuffix.compare("conf", Qt::CaseInsensitive) == 0)
     {
         return QSharedPointer<const ICustomConfig>(WireguardCustomConfig::makeFromFile(filepath));
+    }
+    else if (fileSuffix.compare("json", Qt::CaseInsensitive) == 0)
+    {
+        return QSharedPointer<const ICustomConfig>(SingboxCustomConfig::makeFromJsonFile(filepath));
     }
 
     return NULL;

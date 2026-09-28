@@ -14,6 +14,10 @@ target_sources(engine PRIVATE
     parseovpnconfigline.h
     wireguardcustomconfig.cpp
     wireguardcustomconfig.h
+    singboxurlparser.cpp
+    singboxurlparser.h
+    singboxcustomconfig.cpp
+    singboxcustomconfig.h
 )
 
 if(IS_BUILD_TESTS)

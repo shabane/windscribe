@@ -54,7 +54,7 @@ void CustomConfigsDirWatcher::checkFiles(bool bWithEmitSignal, bool bFileChanged
 
     QDir dir(path_);
     QStringList filters;
-    filters << "*.ovpn" << "*.conf";
+    filters << "*.ovpn" << "*.conf" << "*.txt" << "*.json";
     dir.setNameFilters(filters);
     QStringList fileList = dir.entryList(QDir::Files);
 

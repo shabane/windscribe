@@ -37,4 +37,17 @@ if(IS_BUILD_TESTS)
     )
     set_target_properties(wireguardcustomconfig.test PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
     ws_add_test(wireguardcustomconfig)
+
+    add_executable(singboxcustomconfig.test
+        singboxcustomconfig.test.cpp
+        singboxcustomconfig.test.h
+    )
+    target_link_libraries(singboxcustomconfig.test PRIVATE
+        Qt6::Test engine client-common spdlog::spdlog ${OS_SPECIFIC_LIBRARIES})
+    target_include_directories(singboxcustomconfig.test PRIVATE
+        ${PROJECT_DIRECTORY}/engine
+        ${PROJECT_DIRECTORY}/client-common
+    )
+    set_target_properties(singboxcustomconfig.test PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
+    ws_add_test(singboxcustomconfig)
 endif(IS_BUILD_TESTS)
