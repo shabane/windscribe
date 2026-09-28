@@ -368,12 +368,12 @@ void LocationsTab::updateCustomConfigsEmptyListVisibility()
     WS_ASSERT(configFooterInfo_ != nullptr);
     if (configFooterInfo_->text().isEmpty()) {
         widgetConfiguredLocations_->emptyListWidget()->setText(
-            tr("Choose the directory that contains custom configs you wish to display here"), 200);
-        widgetConfiguredLocations_->emptyListWidget()->setButton(tr("Choose"));
+            tr("Import config files (.txt, .json, .ovpn, .conf) or paste links directly"), 220);
+        widgetConfiguredLocations_->emptyListWidget()->setButton(tr("Add / Paste Configs"));
     } else {
         widgetConfiguredLocations_->emptyListWidget()->setText(
             tr("The selected directory contains no custom configs"), 200);
-        widgetConfiguredLocations_->emptyListWidget()->setButton(QString());
+        widgetConfiguredLocations_->emptyListWidget()->setButton(tr("Add / Paste Configs"));
     }
 }
 
