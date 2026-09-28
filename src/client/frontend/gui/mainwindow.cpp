@@ -14,12 +14,17 @@
 #include <QTimer>
 #include <QWindow>
 #include <QWidgetAction>
+#include <QClipboard>
+#include <QInputDialog>
+#include <QCursor>
 
 #if defined(Q_OS_MACOS)
 #include <QPermission>
 #elif defined(Q_OS_LINUX)
 #include <QtDBus/QtDBus>
 #endif
+
+#include "commonwidgets/custommenuwidget.h"
 
 #include "application/windscribeapplication.h"
 #include "backend/persistentstate.h"
@@ -1668,12 +1673,111 @@ void MainWindow::onLocationsClearCustomConfigClicked()
 
 void MainWindow::onLocationsAddCustomConfigClicked()
 {
+    CustomMenuWidget menu;
+    menu.setColorScheme(true);
+
+    enum ActionId {
+        ACT_PASTE_CLIPBOARD = 1,
+        ACT_PASTE_TEXTBOX,
+        ACT_SELECT_FILE,
+        ACT_SELECT_FOLDER
+    };
+
+    menu.addItem(tr("📋 Paste from Clipboard"), ACT_PASTE_CLIPBOARD);
+    menu.addItem(tr("📝 Paste into Text Box..."), ACT_PASTE_TEXTBOX);
+    menu.addItem(tr("📄 Select Config File (.txt, .json, .ovpn, .conf)..."), ACT_SELECT_FILE);
+    menu.addItem(tr("📁 Select Config Folder..."), ACT_SELECT_FOLDER);
+
     ShowingDialogState::instance().setCurrentlyShowingExternalDialog(true);
-    QString path = QFileDialog::getExistingDirectory(
-        this, tr("Select Custom Config Folder"), "", QFileDialog::ShowDirsOnly);
+    QAction *selectedAction = menu.exec(QCursor::pos());
     ShowingDialogState::instance().setCurrentlyShowingExternalDialog(false);
 
-    checkCustomConfigPath(path);
+    if (!selectedAction) {
+        return;
+    }
+
+    int choice = selectedAction->data().toInt();
+    QString baseDir = backend_->getPreferences()->customOvpnConfigsPath();
+    if (baseDir.isEmpty() || !QDir(baseDir).exists()) {
+        baseDir = QDir::homePath() + "/WindscribeConfigs";
+        QDir().mkpath(baseDir);
+    }
+
+    if (choice == ACT_PASTE_CLIPBOARD) {
+        QClipboard *cb = QGuiApplication::clipboard();
+        QString text = cb ? cb->text().trimmed() : QString();
+        if (text.isEmpty()) {
+            GeneralMessageController::instance().showMessage(
+                "WARNING_YELLOW", tr("Clipboard is Empty"),
+                tr("Please copy your config links to the clipboard first."),
+                GeneralMessageController::tr(GeneralMessageController::kOk));
+            return;
+        }
+
+        QString targetFile = baseDir + "/pasted_configs.txt";
+        QFile file(targetFile);
+        if (file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+            QTextStream out(&file);
+            out << text << "\n";
+            file.close();
+            checkCustomConfigPath(baseDir);
+            GeneralMessageController::instance().showMessage(
+                "OK", tr("Configs Imported"),
+                tr("Successfully saved clipboard configs to:\n%1").arg(targetFile),
+                GeneralMessageController::tr(GeneralMessageController::kOk));
+        } else {
+            GeneralMessageController::instance().showMessage(
+                "WARNING_RED", tr("Save Error"),
+                tr("Could not write to: %1").arg(targetFile),
+                GeneralMessageController::tr(GeneralMessageController::kOk));
+        }
+    }
+    else if (choice == ACT_PASTE_TEXTBOX) {
+        ShowingDialogState::instance().setCurrentlyShowingExternalDialog(true);
+        bool ok = false;
+        QString text = QInputDialog::getMultiLineText(
+            this, tr("Paste Custom Configs"),
+            tr("Paste your sing-box (vless, trojan, ss), OpenVPN or WireGuard configs:"),
+            QGuiApplication::clipboard() ? QGuiApplication::clipboard()->text().trimmed() : QString(),
+            &ok);
+        ShowingDialogState::instance().setCurrentlyShowingExternalDialog(false);
+
+        if (ok && !text.trimmed().isEmpty()) {
+            QString targetFile = baseDir + "/pasted_configs.txt";
+            QFile file(targetFile);
+            if (file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+                QTextStream out(&file);
+                out << text.trimmed() << "\n";
+                file.close();
+                checkCustomConfigPath(baseDir);
+            }
+        }
+    }
+    else if (choice == ACT_SELECT_FILE) {
+        ShowingDialogState::instance().setCurrentlyShowingExternalDialog(true);
+        QString selectedFile = QFileDialog::getOpenFileName(
+            this, tr("Select Config File"), "",
+            tr("Config Files (*.txt *.json *.ovpn *.conf);;All Files (*)"));
+        ShowingDialogState::instance().setCurrentlyShowingExternalDialog(false);
+
+        if (!selectedFile.isEmpty()) {
+            QFileInfo fi(selectedFile);
+            QString destFile = baseDir + "/" + fi.fileName();
+            if (QFile::exists(destFile)) {
+                QFile::remove(destFile);
+            }
+            QFile::copy(selectedFile, destFile);
+            checkCustomConfigPath(baseDir);
+        }
+    }
+    else if (choice == ACT_SELECT_FOLDER) {
+        ShowingDialogState::instance().setCurrentlyShowingExternalDialog(true);
+        QString path = QFileDialog::getExistingDirectory(
+            this, tr("Select Custom Config Folder"), "", QFileDialog::ShowDirsOnly);
+        ShowingDialogState::instance().setCurrentlyShowingExternalDialog(false);
+
+        checkCustomConfigPath(path);
+    }
 }
 
 void MainWindow::onPreferencesCustomConfigPathNeedsUpdate(const QString &path)
