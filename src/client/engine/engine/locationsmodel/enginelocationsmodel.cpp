@@ -41,6 +41,13 @@ void LocationsModel::clear()
     customConfigLocationsModel_->clear();
 }
 
+void LocationsModel::repingCustomConfigs()
+{
+    if (customConfigLocationsModel_) {
+        customConfigLocationsModel_->repingAll();
+    }
+}
+
 QSharedPointer<BaseLocationInfo> LocationsModel::getMutableLocationInfoById(const LocationID &locationId)
 {
     if (locationId.isCustomConfigsLocation()) {

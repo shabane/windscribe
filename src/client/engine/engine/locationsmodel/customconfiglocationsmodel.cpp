@@ -102,6 +102,11 @@ void CustomConfigLocationsModel::clear()
     emit locationsUpdated(empty);
 }
 
+void CustomConfigLocationsModel::repingAll()
+{
+    pingManager_.forceRepingAll();
+}
+
 QSharedPointer<BaseLocationInfo> CustomConfigLocationsModel::getMutableLocationInfoById(const LocationID &locationId)
 {
     WS_ASSERT(locationId.isCustomConfigsLocation());

@@ -92,6 +92,7 @@ LocationsTab::LocationsTab(QWidget *parent, Preferences *preferences, gui_locati
     configFooterInfo_->hide();
 
     connect(configFooterInfo_, &ConfigFooterInfo::clearCustomConfigClicked, this, &LocationsTab::clearCustomConfigClicked);
+    connect(configFooterInfo_, &ConfigFooterInfo::repingCustomConfigClicked, this, &LocationsTab::repingCustomConfigClicked);
     connect(configFooterInfo_, &ConfigFooterInfo::addCustomConfigClicked, this, &LocationsTab::addCustomConfigClicked);
 
     upgradeBanner_ = new UpgradeBanner(this);

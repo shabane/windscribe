@@ -179,6 +179,7 @@ private slots:
     void onClickedOnPremiumStarCity();
     void onLocationsAddStaticIpClicked();
     void onLocationsClearCustomConfigClicked();
+    void onLocationsRepingCustomConfigsClicked();
     void onLocationsAddCustomConfigClicked();
     void onLocationsUpgradeBannerClicked();
 

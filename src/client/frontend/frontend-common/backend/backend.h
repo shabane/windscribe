@@ -90,6 +90,7 @@ public:
     void continueWithPrivKeyPasswordForOvpnConfig(const QString &password, bool bSave);
 
     gui_locations::LocationsModelManager *locationsModelManager();
+    void repingCustomConfigs();
 
     PreferencesHelper *getPreferencesHelper();
     Preferences *getPreferences();

@@ -49,7 +49,7 @@ void ConfigFooterInfo::updateDisplayText()
 {
     font_ = FontManager::instance().getFont(12, QFont::Normal);
     displayText_ = CommonGraphics::truncatedText(fullText_, font_,
-        width() - (WINDOW_MARGIN * 4 + 40) * G_SCALE);
+        width() - (WINDOW_MARGIN * 4 + 75) * G_SCALE);
     displayTextRect_.setRect(WINDOW_MARGIN * G_SCALE, 0,
         CommonGraphics::textWidth(displayText_, font_), height() - BOTTOM_LINE_HEIGHT * G_SCALE);
 }
@@ -59,7 +59,9 @@ void ConfigFooterInfo::updateButtonRects()
     const int kIconSize = 16 * G_SCALE;
     const int kIconYOffset = ((height() - BOTTOM_LINE_HEIGHT * G_SCALE) - kIconSize) / 2;
 
-    iconButtons_[ICON_CLEAR].rect.setRect((WINDOW_WIDTH - WINDOW_MARGIN - 32) * G_SCALE - kIconSize,
+    iconButtons_[ICON_CLEAR].rect.setRect((WINDOW_WIDTH - WINDOW_MARGIN - 80) * G_SCALE,
+        kIconYOffset, kIconSize, kIconSize);
+    iconButtons_[ICON_REPING].rect.setRect((WINDOW_WIDTH - WINDOW_MARGIN - 48) * G_SCALE,
         kIconYOffset, kIconSize, kIconSize);
     iconButtons_[ICON_CHOOSE].rect.setRect((WINDOW_WIDTH - WINDOW_MARGIN - 16) * G_SCALE,
         kIconYOffset, kIconSize, kIconSize);
@@ -101,6 +103,11 @@ void ConfigFooterInfo::paintEvent(QPaintEvent * /*event*/)
         ImageResourcesSvg::instance().getIndependentPixmap("CLOSE_ICON");
     painter.setOpacity(initOpacity * iconButtons_[ICON_CLEAR].opacity);
     pixmap_clear->draw(iconButtons_[ICON_CLEAR].rect, &painter);
+
+    QSharedPointer<IndependentPixmap> pixmap_reping =
+        ImageResourcesSvg::instance().getIndependentPixmap("REFRESH_ICON");
+    painter.setOpacity(initOpacity * iconButtons_[ICON_REPING].opacity);
+    pixmap_reping->draw(iconButtons_[ICON_REPING].rect, &painter);
 
     QSharedPointer<IndependentPixmap> pixmap_choose =
         ImageResourcesSvg::instance().getIndependentPixmap("EDIT_ICON");
@@ -169,6 +176,9 @@ void ConfigFooterInfo::mouseReleaseEvent(QMouseEvent * /*event*/)
         if (iconButtons_[ICON_CLEAR].is_hover) {
             clickedIconButton = &iconButtons_[ICON_CLEAR];
             emit clearCustomConfigClicked();
+        } else if (iconButtons_[ICON_REPING].is_hover) {
+            clickedIconButton = &iconButtons_[ICON_REPING];
+            emit repingCustomConfigClicked();
         } else if (iconButtons_[ICON_CHOOSE].is_hover) {
             clickedIconButton = &iconButtons_[ICON_CHOOSE];
             emit addCustomConfigClicked();

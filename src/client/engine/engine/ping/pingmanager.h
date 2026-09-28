@@ -35,6 +35,7 @@ public:
     bool isAllNodesHaveCurIteration() const;
     PingTime getPing(const QString &ip) const;
     void setPing(const QString &ip, PingTime pingTime);
+    void forceRepingAll();
 
 signals:
     void pingInfoChanged(const QString &ip, int timems);

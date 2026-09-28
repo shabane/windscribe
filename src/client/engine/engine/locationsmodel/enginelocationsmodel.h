@@ -20,6 +20,7 @@ public:
     void setApiLocations(const QVector<api_responses::Location> &locations, const api_responses::StaticIps &staticIps);
     void setCustomConfigLocations(const QVector<QSharedPointer<const customconfigs::ICustomConfig>> &customConfigs);
     void clear();
+    void repingCustomConfigs();
 
     QSharedPointer<BaseLocationInfo> getMutableLocationInfoById(const LocationID &locationId);
 

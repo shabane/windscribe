@@ -18,6 +18,7 @@ public:
 
 signals:
     void clearCustomConfigClicked();
+    void repingCustomConfigClicked();
     void addCustomConfigClicked();
 
 protected:
@@ -51,6 +52,6 @@ private:
     static constexpr int BOTTOM_LINE_HEIGHT = 1;
     QFont font_;
 
-    enum { ICON_CLEAR, ICON_CHOOSE, NUM_ICONS };
+    enum { ICON_CLEAR, ICON_REPING, ICON_CHOOSE, NUM_ICONS };
     IconButton iconButtons_[NUM_ICONS];
 };

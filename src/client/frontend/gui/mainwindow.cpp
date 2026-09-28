@@ -174,6 +174,7 @@ MainWindow::MainWindow() :
     connect(locationsWindow_, &LocationsWindow::clickedOnPremiumStarCity, this, &MainWindow::onClickedOnPremiumStarCity);
     connect(locationsWindow_, &LocationsWindow::addStaticIpClicked, this, &MainWindow::onLocationsAddStaticIpClicked);
     connect(locationsWindow_, &LocationsWindow::clearCustomConfigClicked, this, &MainWindow::onLocationsClearCustomConfigClicked);
+    connect(locationsWindow_, &LocationsWindow::repingCustomConfigClicked, this, &MainWindow::onLocationsRepingCustomConfigsClicked);
     connect(locationsWindow_, &LocationsWindow::addCustomConfigClicked, this, &MainWindow::onLocationsAddCustomConfigClicked);
     connect(locationsWindow_, &LocationsWindow::upgradeBannerClicked, this, &MainWindow::onLocationsUpgradeBannerClicked);
     locationsWindow_->setShowLocationLoad(backend_->getPreferences()->isShowLocationLoad());
@@ -1680,13 +1681,15 @@ void MainWindow::onLocationsAddCustomConfigClicked()
         ACT_PASTE_CLIPBOARD = 1,
         ACT_PASTE_TEXTBOX,
         ACT_SELECT_FILE,
-        ACT_SELECT_FOLDER
+        ACT_SELECT_FOLDER,
+        ACT_REPING_CONFIGS
     };
 
     menu.addItem(tr("📋 Paste from Clipboard"), ACT_PASTE_CLIPBOARD);
     menu.addItem(tr("📝 Paste into Text Box..."), ACT_PASTE_TEXTBOX);
     menu.addItem(tr("📄 Select Config File (.txt, .json, .ovpn, .conf)..."), ACT_SELECT_FILE);
     menu.addItem(tr("📁 Select Config Folder..."), ACT_SELECT_FOLDER);
+    menu.addItem(tr("⚡ Test / Refresh Pings"), ACT_REPING_CONFIGS);
 
     ShowingDialogState::instance().setCurrentlyShowingExternalDialog(true);
     QAction *selectedAction = menu.exec(QCursor::pos());
@@ -1701,6 +1704,11 @@ void MainWindow::onLocationsAddCustomConfigClicked()
     if (baseDir.isEmpty() || !QDir(baseDir).exists()) {
         baseDir = QDir::homePath() + "/WindscribeConfigs";
         QDir().mkpath(baseDir);
+    }
+
+    if (choice == ACT_REPING_CONFIGS) {
+        onLocationsRepingCustomConfigsClicked();
+        return;
     }
 
     if (choice == ACT_PASTE_CLIPBOARD) {
@@ -1778,6 +1786,12 @@ void MainWindow::onLocationsAddCustomConfigClicked()
 
         checkCustomConfigPath(path);
     }
+}
+
+void MainWindow::onLocationsRepingCustomConfigsClicked()
+{
+    qCDebug(LOG_BASIC) << "Triggering custom config reping...";
+    backend_->repingCustomConfigs();
 }
 
 void MainWindow::onPreferencesCustomConfigPathNeedsUpdate(const QString &path)

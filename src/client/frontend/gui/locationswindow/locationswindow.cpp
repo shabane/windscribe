@@ -54,6 +54,7 @@ LocationsWindow::LocationsWindow(QWidget *parent, Preferences *preferences, gui_
     connect(locationsTab_, &GuiLocations::LocationsTab::clickedOnPremiumStarCity, this, &LocationsWindow::clickedOnPremiumStarCity);
     connect(locationsTab_, &GuiLocations::LocationsTab::addStaticIpClicked, this, &LocationsWindow::addStaticIpClicked);
     connect(locationsTab_, &GuiLocations::LocationsTab::clearCustomConfigClicked, this, &LocationsWindow::clearCustomConfigClicked);
+    connect(locationsTab_, &GuiLocations::LocationsTab::repingCustomConfigClicked, this, &LocationsWindow::repingCustomConfigClicked);
     connect(locationsTab_, &GuiLocations::LocationsTab::addCustomConfigClicked, this, &LocationsWindow::addCustomConfigClicked);
     connect(locationsTab_, &GuiLocations::LocationsTab::upgradeBannerClicked, this, &LocationsWindow::upgradeBannerClicked);
 

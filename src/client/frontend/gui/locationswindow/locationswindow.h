@@ -40,6 +40,7 @@ signals:
     void clickedOnPremiumStarCity();
     void addStaticIpClicked();
     void clearCustomConfigClicked();
+    void repingCustomConfigClicked();
     void addCustomConfigClicked();
     void upgradeBannerClicked();
 

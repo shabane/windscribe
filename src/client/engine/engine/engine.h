@@ -148,6 +148,7 @@ public slots:
     void init();
     void stopPacketDetection();
     void onWireGuardKeyLimitUserResponse(bool deleteOldestKey);
+    void repingCustomConfigs();
 
 signals:
     void initFinished(ENGINE_INIT_RET_CODE retCode, bool isCanLoginWithAuthHash, const types::EngineSettings &engineSettings);

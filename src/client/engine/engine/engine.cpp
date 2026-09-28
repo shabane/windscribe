@@ -314,6 +314,13 @@ locationsmodel::LocationsModel *Engine::getLocationsModel()
     return locationsModel_;
 }
 
+void Engine::repingCustomConfigs()
+{
+    if (locationsModel_) {
+        locationsModel_->repingCustomConfigs();
+    }
+}
+
 IConnectStateController *Engine::getConnectStateController()
 {
     WS_ASSERT(connectStateController_ != NULL);

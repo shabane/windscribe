@@ -335,6 +335,11 @@ void Backend::gotoCustomOvpnConfigMode()
     engine_->gotoCustomOvpnConfigMode();
 }
 
+void Backend::repingCustomConfigs()
+{
+    QMetaObject::invokeMethod(engine_, "repingCustomConfigs", Qt::QueuedConnection);
+}
+
 void Backend::recordInstall()
 {
     engine_->recordInstall();

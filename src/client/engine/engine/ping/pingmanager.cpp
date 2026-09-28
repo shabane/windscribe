@@ -61,6 +61,17 @@ void PingManager::setPing(const QString &ip, PingTime pingTime)
     pingStorage_.setPing(ip, pingTime);
 }
 
+void PingManager::forceRepingAll()
+{
+    addLog("PingManager::forceRepingAll", "Forcing immediate reping of all nodes");
+    pingStorage_.setCurrentIterationData(0, QString());
+    for (auto it = ips_.begin(); it != ips_.end(); ++it) {
+        it.value().resetState();
+        it.value().existThisIp = true;
+    }
+    onPingTimer();
+}
+
 void PingManager::onPingTimer()
 {
     using namespace std::placeholders;
