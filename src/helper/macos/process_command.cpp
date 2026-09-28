@@ -229,9 +229,8 @@ std::string executeTaskKill(const std::string &pars)
         Utils::executeCommand("pkill", {"-f", WS_PRODUCT_NAME_LOWER "ctrld"});
         success = true;
     } else if (target == kTargetSingbox) {
-        spdlog::info("Killing sing-box processes");
-        Utils::executeCommand("pkill", {"-f", "singbox"});
-        Utils::executeCommand("pkill", {"-f", "sing-box"});
+        spdlog::info("Killing " WS_PRODUCT_NAME " sing-box processes");
+        Utils::executeCommand("pkill", {"-f", WS_PRODUCT_NAME_LOWER "singbox"});
         success = true;
     } else {
         spdlog::error("Did not kill processes for type {}", (int)target);

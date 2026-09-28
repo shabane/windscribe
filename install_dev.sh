@@ -20,8 +20,7 @@ fi
 # 1. بستن پروسه‌های باز قبلی
 echo "🛑 در حال بستن پروسه‌های قبلی..."
 pkill -f Windscribe 2>/dev/null || true
-pkill -f singbox 2>/dev/null || true
-pkill -f sing-box 2>/dev/null || true
+pkill -f windscribesingbox 2>/dev/null || true
 
 # 2. کپی اپلیکیشن به /Applications
 echo "📦 در حال کپی Windscribe.app به /Applications..."
