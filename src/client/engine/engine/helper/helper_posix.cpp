@@ -284,6 +284,19 @@ bool Helper_posix::startWstunnel(const QString &hostname, unsigned int port, uns
     return success;
 }
 
+bool Helper_posix::startSingbox(const QString &configPath)
+{
+    auto result = sendCommand(HelperCommand::startSingbox, configPath.toStdString());
+    bool success = false;
+    deserializeAnswer(result, success);
+    return success;
+}
+
+bool Helper_posix::stopSingbox()
+{
+    return executeTaskKill(kTargetSingbox);
+}
+
 bool Helper_posix::setMacAddress(const QString &interface, const QString &macAddress, const QString &network, bool isWifi)
 {
     auto result = sendCommand(HelperCommand::setMacAddress, interface.toStdString(), macAddress.toStdString(), network.toStdString(), isWifi);

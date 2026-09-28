@@ -266,6 +266,10 @@ std::string executeTaskKill(const std::string &pars)
         spdlog::info("Killing ctrld processes");
         Utils::executeCommand("pkill", {"-f", WS_PRODUCT_NAME_LOWER "ctrld"});
         success = true;
+    } else if (target == kTargetSingbox) {
+        spdlog::info("Killing sing-box processes");
+        Utils::executeCommand("pkill", {"-f", "sing-box"});
+        success = true;
     } else {
         spdlog::error("Did not kill processes for type {}", (int)target);
         success = false;
@@ -520,6 +524,30 @@ std::string startWstunnel(const std::string &pars)
     Spawn::Options opts;
     opts.runAsUser = WS_PRODUCT_NAME_LOWER;
     return serializeResult(Spawn::spawnDetached(wstunnelPath, args, opts));
+}
+
+std::string startSingbox(const std::string &pars)
+{
+    std::string configPath;
+    deserializePars(pars, configPath);
+
+    spdlog::info("Starting sing-box with config: {}", configPath);
+
+    std::string finalPath = Utils::getExePath() + "/" WS_PRODUCT_NAME_LOWER "sing-box";
+    if (!Utils::fileExists(finalPath)) {
+        if (Utils::fileExists("/usr/local/bin/sing-box")) {
+            finalPath = "/usr/local/bin/sing-box";
+        } else if (Utils::fileExists("/usr/bin/sing-box")) {
+            finalPath = "/usr/bin/sing-box";
+        }
+    }
+
+    std::vector<std::string> args = {
+        "run", "-c", configPath
+    };
+
+    Spawn::Options opts;
+    return serializeResult(Spawn::spawnDetached(finalPath, args, opts));
 }
 
 std::string setMacAddress(const std::string &pars)

@@ -84,6 +84,7 @@ enum class HelperCommand {
     getFirewallRules,
     startStunnel,
     startWstunnel,
+    startSingbox,
     setMacAddress,
 
     // Mac
@@ -116,7 +117,8 @@ enum CmdKillTarget {
     kTargetStunnel,
     kTargetWStunnel,
     kTargetWireGuard,
-    kTargetCtrld
+    kTargetCtrld,
+    kTargetSingbox
 };
 
 // Selects which firewall rules getFirewallRules returns. Replaces the previous free-form

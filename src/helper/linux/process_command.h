@@ -23,6 +23,7 @@ std::string setFirewallRules(const std::string &pars);
 std::string setFirewallOnBoot(const std::string &pars);
 std::string startStunnel(const std::string &pars);
 std::string startWstunnel(const std::string &pars);
+std::string startSingbox(const std::string &pars);
 std::string setMacAddress(const std::string &pars);
 std::string setDnsLeakProtectEnabled(const std::string &pars);
 std::string setGaiIpv4PriorityEnabled(const std::string &pars);
@@ -50,6 +51,7 @@ static const std::map<const HelperCommand, std::function<std::string(const std::
     { HelperCommand::setFirewallOnBoot, setFirewallOnBoot },
     { HelperCommand::startStunnel, startStunnel },
     { HelperCommand::startWstunnel, startWstunnel },
+    { HelperCommand::startSingbox, startSingbox },
     { HelperCommand::setMacAddress, setMacAddress },
     { HelperCommand::setDnsLeakProtectEnabled, setDnsLeakProtectEnabled },
     { HelperCommand::setGaiIpv4PriorityEnabled, setGaiIpv4PriorityEnabled },
